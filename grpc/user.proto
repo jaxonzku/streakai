@@ -8,6 +8,8 @@ service StreakAiService {
   rpc Login(LoginRequest) returns (LoginResponse) {};
   rpc Register(RegisterRequest) returns (RegisterResponse) {};
   rpc LogOut(LogOutRequest) returns (LogOutResponse) {};
+  rpc CheckAuthorized(CheckAuthorizedReq) returns (CheckAuthorizedRes) {};
+
 }
 
 message LoginRequest {
@@ -39,5 +41,16 @@ message LogOutRequest {
 message LogOutResponse {
   string status = 2;
 }
+
+message CheckAuthorizedReq {
+  string authCode = 1;
+}
+
+message CheckAuthorizedRes {
+  string username = 1;
+  bool authorized = 2;
+}
+
+
 
 

@@ -3,7 +3,9 @@ module streakai
 go 1.21.3
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
+	github.com/gorilla/websocket v1.5.3
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )

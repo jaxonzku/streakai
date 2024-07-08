@@ -25,6 +25,7 @@ type StreakAiServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	LogOut(ctx context.Context, in *LogOutRequest, opts ...grpc.CallOption) (*LogOutResponse, error)
+	CheckAuthorized(ctx context.Context, in *CheckAuthorizedReq, opts ...grpc.CallOption) (*CheckAuthorizedRes, error)
 }
 
 type streakAiServiceClient struct {
@@ -62,6 +63,15 @@ func (c *streakAiServiceClient) LogOut(ctx context.Context, in *LogOutRequest, o
 	return out, nil
 }
 
+func (c *streakAiServiceClient) CheckAuthorized(ctx context.Context, in *CheckAuthorizedReq, opts ...grpc.CallOption) (*CheckAuthorizedRes, error) {
+	out := new(CheckAuthorizedRes)
+	err := c.cc.Invoke(ctx, "/grpc.StreakAiService/CheckAuthorized", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StreakAiServiceServer is the server API for StreakAiService service.
 // All implementations must embed UnimplementedStreakAiServiceServer
 // for forward compatibility
@@ -69,6 +79,7 @@ type StreakAiServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	LogOut(context.Context, *LogOutRequest) (*LogOutResponse, error)
+	CheckAuthorized(context.Context, *CheckAuthorizedReq) (*CheckAuthorizedRes, error)
 	mustEmbedUnimplementedStreakAiServiceServer()
 }
 
@@ -84,6 +95,9 @@ func (UnimplementedStreakAiServiceServer) Register(context.Context, *RegisterReq
 }
 func (UnimplementedStreakAiServiceServer) LogOut(context.Context, *LogOutRequest) (*LogOutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LogOut not implemented")
+}
+func (UnimplementedStreakAiServiceServer) CheckAuthorized(context.Context, *CheckAuthorizedReq) (*CheckAuthorizedRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAuthorized not implemented")
 }
 func (UnimplementedStreakAiServiceServer) mustEmbedUnimplementedStreakAiServiceServer() {}
 
@@ -152,6 +166,24 @@ func _StreakAiService_LogOut_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StreakAiService_CheckAuthorized_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAuthorizedReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreakAiServiceServer).CheckAuthorized(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.StreakAiService/CheckAuthorized",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreakAiServiceServer).CheckAuthorized(ctx, req.(*CheckAuthorizedReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StreakAiService_ServiceDesc is the grpc.ServiceDesc for StreakAiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +202,10 @@ var StreakAiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LogOut",
 			Handler:    _StreakAiService_LogOut_Handler,
+		},
+		{
+			MethodName: "CheckAuthorized",
+			Handler:    _StreakAiService_CheckAuthorized_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
