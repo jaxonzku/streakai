@@ -21,6 +21,10 @@ type User struct {
 	Password string `json:"password"`
 }
 
+type UserLogoutReq struct {
+	Username string `json:"username"`
+}
+
 var (
 	grpcClient pb.StreakAiServiceClient
 )
@@ -44,6 +48,8 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/login", handleLogin).Methods("POST")
 	router.HandleFunc("/register", handleRegister).Methods("POST")
+	router.HandleFunc("/logout", handleLogout).Methods("POST")
+
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
@@ -111,6 +117,44 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	// Send response
 	SendResponse(w, http.StatusOK, map[string]string{"message": "Registration successful", "status": resp.Status})
 	log.Println("Registration successful")
+}
+
+func handleLogout(w http.ResponseWriter, r *http.Request) {
+	log.Println("LogOut handler hit")
+	var userLogOutReq UserLogoutReq
+
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+
+	if err := json.Unmarshal(body, &userLogOutReq); err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Missing authorization header")
+		return
+	}
+	tokenString = tokenString[len("Bearer "):]
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	resp, err := grpcClient.LogOut(ctx, &pb.LogOutRequest{Username: userLogOutReq.Username, AuthCode: tokenString})
+	if err != nil {
+		http.Error(w, "Login failed", http.StatusUnauthorized)
+		log.Printf("gRPC login call failed: %v", err)
+		return
+	}
+	SendResponse(w, http.StatusOK, map[string]string{"token": resp.Status})
+	log.Println("Login successful")
+
 }
 
 func SendResponse(w http.ResponseWriter, statusCode int, payload interface{}) {

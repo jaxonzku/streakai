@@ -7,7 +7,7 @@ option go_package="streakai/grpc";
 service StreakAiService {
   rpc Login(LoginRequest) returns (LoginResponse) {};
   rpc Register(RegisterRequest) returns (RegisterResponse) {};
-
+  rpc LogOut(LogOutRequest) returns (LogOutResponse) {};
 }
 
 message LoginRequest {
@@ -17,6 +17,7 @@ message LoginRequest {
 
 message LoginResponse {
   string token = 1;
+  string status = 2;
 
 }
 
@@ -27,6 +28,16 @@ message RegisterRequest {
 
 message RegisterResponse {
   string status = 1;
+}
+
+message LogOutRequest {
+  string username = 1;
+  string authCode = 2;
+
+}
+
+message LogOutResponse {
+  string status = 2;
 }
 
 

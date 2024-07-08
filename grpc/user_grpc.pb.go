@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type StreakAiServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	LogOut(ctx context.Context, in *LogOutRequest, opts ...grpc.CallOption) (*LogOutResponse, error)
 }
 
 type streakAiServiceClient struct {
@@ -52,12 +53,22 @@ func (c *streakAiServiceClient) Register(ctx context.Context, in *RegisterReques
 	return out, nil
 }
 
+func (c *streakAiServiceClient) LogOut(ctx context.Context, in *LogOutRequest, opts ...grpc.CallOption) (*LogOutResponse, error) {
+	out := new(LogOutResponse)
+	err := c.cc.Invoke(ctx, "/grpc.StreakAiService/LogOut", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StreakAiServiceServer is the server API for StreakAiService service.
 // All implementations must embed UnimplementedStreakAiServiceServer
 // for forward compatibility
 type StreakAiServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	LogOut(context.Context, *LogOutRequest) (*LogOutResponse, error)
 	mustEmbedUnimplementedStreakAiServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedStreakAiServiceServer) Login(context.Context, *LoginRequest) 
 }
 func (UnimplementedStreakAiServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
+}
+func (UnimplementedStreakAiServiceServer) LogOut(context.Context, *LogOutRequest) (*LogOutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogOut not implemented")
 }
 func (UnimplementedStreakAiServiceServer) mustEmbedUnimplementedStreakAiServiceServer() {}
 
@@ -120,6 +134,24 @@ func _StreakAiService_Register_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StreakAiService_LogOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogOutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreakAiServiceServer).LogOut(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.StreakAiService/LogOut",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreakAiServiceServer).LogOut(ctx, req.(*LogOutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StreakAiService_ServiceDesc is the grpc.ServiceDesc for StreakAiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var StreakAiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Register",
 			Handler:    _StreakAiService_Register_Handler,
+		},
+		{
+			MethodName: "LogOut",
+			Handler:    _StreakAiService_LogOut_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
