@@ -112,3 +112,24 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	SendResponse(w, http.StatusOK, map[string]string{"token": resp.Status})
 	log.Println("Login successful")
 }
+
+func isAuthorised(w http.ResponseWriter, r *http.Request) (string, bool) {
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, "Missing authorization header")
+		return "", false
+	}
+	tokenString = tokenString[len("Bearer "):]
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	resp, err := grpcClient.CheckAuthorized(ctx, &pb.CheckAuthorizedReq{AuthCode: tokenString})
+	if err != nil {
+		http.Error(w, "Not Authorized", http.StatusUnauthorized)
+		log.Printf("gRPC authorization  failed: %v", err)
+		return "", false
+	}
+	return resp.Username, resp.Authorized
+}
