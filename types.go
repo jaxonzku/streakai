@@ -5,6 +5,7 @@ import (
 	pb "streakai/grpc"
 	"sync"
 
+	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
 )
 
@@ -39,6 +40,7 @@ var (
 			// Allowing all origins for now
 			return true
 		}}
-	wsMutex sync.Mutex
-	clients = make(map[*websocket.Conn]bool)
+	wsMutex     sync.Mutex
+	clients     = make(map[*websocket.Conn]bool)
+	redisClient *redis.Client
 )

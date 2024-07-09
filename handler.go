@@ -22,10 +22,10 @@ func handleSessions(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost: //adds a new voting session
 		createSessionHandler(w, r)
-	case http.MethodPatch: //adds a new voting session
+	case http.MethodPatch: //cast a vote to a session
 		castVote(w, r)
 	case http.MethodGet: //fetches all voting session
-		// getAllSessionHandler(w)
+		getSessionHandler(w, r)
 
 	default:
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)

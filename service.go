@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 func castVote(w http.ResponseWriter, r *http.Request) {
@@ -27,10 +28,12 @@ func castVote(w http.ResponseWriter, r *http.Request) {
 			if !alreadyVoted(session.YesCount, session.NoCount, username) {
 				if singleVote.Vote {
 					session.YesCount = append(session.YesCount, username)
+					setSession(session)
 					broadcastSessionStatus(session)
 					SendResponse(w, http.StatusOK, map[string]string{"message": "vote casted"})
 				} else {
 					session.NoCount = append(session.NoCount, username)
+					setSession(session)
 					broadcastSessionStatus(session)
 					SendResponse(w, http.StatusOK, map[string]string{"message": "vote casted"})
 
@@ -38,6 +41,27 @@ func castVote(w http.ResponseWriter, r *http.Request) {
 			}
 
 		}
+	}
+
+}
+
+func getSessionHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	sessionID, ok := vars["id"]
+	if !ok {
+		http.Error(w, "Missing session ID", http.StatusBadRequest)
+		return
+	}
+	session, err := getSession(sessionID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(session); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 }
@@ -55,9 +79,7 @@ func createSessionHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Printf("Decoded Job: %+v", votingSession)
 		votingSession.Id = uuid.New().String()
-		sessionMutex.Lock()
-		sessions = append(sessions, &votingSession)
-		sessionMutex.Unlock()
+		setSession(&votingSession)
 		broadcastSessionStatus(&votingSession)
 		logAllSessions()
 	}
