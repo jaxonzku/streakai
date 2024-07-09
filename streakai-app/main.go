@@ -23,7 +23,7 @@ func main() {
 	router.HandleFunc("/logout", handleLogout).Methods("POST")
 	router.HandleFunc("/ws", handleWebSocket)
 	router.HandleFunc("/sessions", handleSessions)
-	router.HandleFunc("/sessions/{id}", getSessionHandler).Methods("GET")
+	router.HandleFunc("/sessions/{id}", handleSessions)
 
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", router))

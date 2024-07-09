@@ -24,7 +24,7 @@ func handleSessions(w http.ResponseWriter, r *http.Request) {
 		createSessionHandler(w, r)
 	case http.MethodPatch: //cast a vote to a session
 		castVote(w, r)
-	case http.MethodGet: //fetches all voting session
+	case http.MethodGet: //fetches voting session
 		getSessionHandler(w, r)
 
 	default:
