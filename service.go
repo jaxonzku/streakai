@@ -80,9 +80,6 @@ func alreadyVoted(yesCount []string, noCount []string, username string) bool {
 	yes := false
 	no := false
 
-	fmt.Println("yes", yesCount)
-	fmt.Println("no", noCount)
-
 	for _, u := range yesCount {
 		fmt.Println("user yes", u)
 		if u == username {
@@ -98,10 +95,6 @@ func alreadyVoted(yesCount []string, noCount []string, username string) bool {
 			break
 		}
 	}
-	fmt.Println("a1", yes || no)
-	fmt.Println("a2", yes && no)
-	fmt.Println("a3", yes)
-	fmt.Println("a3", no)
 
 	return yes || no
 }
